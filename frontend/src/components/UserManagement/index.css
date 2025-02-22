@@ -1,5 +1,7 @@
 .user-management {
-    padding: 20px;
+    padding: 2% 6%;
+    color: #333;
+    font-family: Arial, sans-serif;
 }
 
 .user-actions {
@@ -18,10 +20,4 @@
 
 .user-actions button:hover {
     background-color: #bf0010;
-}
-
-.user-content {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }

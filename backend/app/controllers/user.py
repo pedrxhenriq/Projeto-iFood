@@ -4,10 +4,16 @@ from app import db
 
 user_bp = Blueprint('user_bp', __name__)
 
+from flask import request, jsonify
+
 @user_bp.route('/', methods=['GET'])
 def get_users():
-    users = User.query.all()
-    result = [
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    pagination = User.query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    users = [
         {
             'id': user.id,
             'nome': user.nome,
@@ -15,9 +21,18 @@ def get_users():
             'cpf': user.cpf,
             'telefone': user.telefone,
             'ativo': user.ativo
-        } for user in users
+        } for user in pagination.items
     ]
-    return jsonify(result), 200
+
+    return jsonify({
+        'users': users,
+        'total': pagination.total,
+        'pages': pagination.pages,
+        'current_page': pagination.page,
+        'per_page': pagination.per_page,
+        'has_next': pagination.has_next,
+        'has_prev': pagination.has_prev
+    }), 200
 
 @user_bp.route('/<int:id>', methods=['GET'])
 def get_user(id):
@@ -47,6 +62,13 @@ def create_user():
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'Usuário criado com sucesso!'}), 201
+
+@user_bp.route('/<int:id>', methods=['POST'])
+def reactive_user(id):
+    user = User.query.get_or_404(id)
+    user.ativo = True
+    db.session.commit()
+    return jsonify({'message': 'Usuário reativado com sucesso!'}), 200
 
 @user_bp.route('/<int:id>', methods=['PATCH'])
 def update_user(id):
