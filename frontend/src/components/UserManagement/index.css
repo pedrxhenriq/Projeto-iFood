@@ -1,0 +1,27 @@
+.user-management {
+    padding: 20px;
+}
+
+.user-actions {
+    margin-bottom: 20px;
+}
+
+.user-actions button {
+    margin-right: 10px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #e60014;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.user-actions button:hover {
+    background-color: #bf0010;
+}
+
+.user-content {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

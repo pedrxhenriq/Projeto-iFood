@@ -1,0 +1,50 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 12%;
+    background-color: #f7f7f7;
+    font-family: Arial, sans-serif;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #e60014;
+    font-family: 'Helvetica', sans-serif;
+    cursor: pointer;
+}
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    color: #646464;
+    cursor: pointer;
+}
+
+.create-account {
+    font-size: 0.9rem;
+    color: #e60014;
+    cursor: pointer;
+}
+
+.user-actions-home {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.login-button {
+    background-color: #e60014;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+}
