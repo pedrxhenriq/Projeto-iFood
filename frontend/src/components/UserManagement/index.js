@@ -37,7 +37,34 @@ const UserManagement = () => {
     setSelectedUser(null);
   };
 
+  const validateFormData = ({ nome, email, cpf, telefone }) => {
+    if (!nome) {
+      alert('Preencha o nome do usuário antes de prosseguir.');
+      return false;
+    }
+    if (!email) {
+      alert('Preencha o email do usuário antes de prosseguir.');
+      return false;
+    }
+
+    const isValidCPF = cpf && cpf.toString().length === 11 && /^\d+$/.test(cpf.toString());
+    const isValidTelefone = telefone && (telefone.toString().length === 11 || telefone.toString().length === 10) && /^\d+$/.test(telefone.toString());
+
+    if (!isValidCPF) {
+      alert('O CPF deve conter 11 dígitos numéricos.');
+      return false;
+    }
+    if (!isValidTelefone) {
+      alert('O Telefone deve conter 10 ou 11 dígitos numéricos.');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleCreateUser = async () => {
+    if (!validateFormData(formData)) return;
+
     try {
       await axios.post(API_URL, formData);
       resetForm();
@@ -48,7 +75,8 @@ const UserManagement = () => {
   };
 
   const handleUpdateUser = async () => {
-    if (!selectedUser) return;
+    if (!validateFormData(formData) || !selectedUser) return;
+
     try {
       await axios.patch(`${API_URL}${selectedUser.id}`, formData);
       resetForm();

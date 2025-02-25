@@ -23,6 +23,7 @@ const UserForm = ({ mode, formData, onChange, onSubmit }) => {
         type="text"
         name="cpf"
         placeholder="CPF"
+        maxLength={11}
         value={formData.cpf}
         onChange={onChange}
       />
@@ -30,6 +31,7 @@ const UserForm = ({ mode, formData, onChange, onSubmit }) => {
         type="text"
         name="telefone"
         placeholder="Telefone"
+        maxLength={11}
         value={formData.telefone}
         onChange={onChange}
       />
