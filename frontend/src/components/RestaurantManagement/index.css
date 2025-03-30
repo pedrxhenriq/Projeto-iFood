@@ -1,0 +1,23 @@
+.restaurant-management {
+    padding: 2% 6%;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+.restaurant-actions {
+    margin-bottom: 20px;
+}
+
+.restaurant-actions button {
+    margin-right: 10px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #e60014;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.restaurant-actions button:hover {
+    background-color: #bf0010;
+}

@@ -13,5 +13,8 @@ def create_app():
     
     from app.controllers.user import user_bp
     app.register_blueprint(user_bp, url_prefix='/users')
+
+    from app.controllers.login import login_bp
+    app.register_blueprint(login_bp, url_prefix='/login')
     
     return app

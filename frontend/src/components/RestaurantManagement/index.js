@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import UserList from '../UserList/index.js';
-import UserForm from '../UserForm/index.js';
+import RestaurantList from '../RestaurantList/index.js';
+import RestaurantForm from '../RestaurantForm/index.js';
 import './index.css';
 
 const API_URL = 'http://localhost:5000/users/';
 
-const UserManagement = () => {
+const RestaurantManagement = () => {
   const [view, setView] = useState('list');
-  const [users, setUsers] = useState([]);
-  const [formData, setFormData] = useState({ nome: '', email: '', cpf: '', telefone: '', senha: '' });
+  const [restaurants, setRestaurants] = useState([]);
+  const [formData, setFormData] = useState({ nome: '', email: '', cpf: '', telefone: '' });
   const [selectedUser, setSelectedUser] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    if (view === 'list') fetchUsers();
+    if (view === 'list') fetchRestaurant();
   }, [view, page]);
 
-  const fetchUsers = async () => {
+  const fetchRestaurant = async () => {
     try {
       const response = await axios.get(API_URL, { params: { page, per_page: 5 } });
-      setUsers(response.data.users);
+      setRestaurants(response.data.users);
       setTotalPages(response.data.pages);
     } catch (error) {
       console.error('Erro ao buscar usuários', error);
@@ -33,21 +33,17 @@ const UserManagement = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nome: '', email: '', cpf: '', telefone: '', senha: '' });
+    setFormData({ nome: '', email: '', cpf: '', telefone: '' });
     setSelectedUser(null);
   };
 
-  const validateFormData = ({ nome, email, cpf, telefone, senha }) => {
+  const validateFormData = ({ nome, email, cpf, telefone }) => {
     if (!nome) {
       alert('Preencha o nome do usuário antes de prosseguir.');
       return false;
     }
     if (!email) {
       alert('Preencha o email do usuário antes de prosseguir.');
-      return false;
-    }
-    if (!senha) {
-      alert('Preencha a senha do usuário antes de prosseguir.');
       return false;
     }
 
@@ -66,7 +62,7 @@ const UserManagement = () => {
     return true;
   };
 
-  const handleCreateUser = async () => {
+  const handleCreateRestaurant = async () => {
     if (!validateFormData(formData)) return;
 
     try {
@@ -78,7 +74,7 @@ const UserManagement = () => {
     }
   };
 
-  const handleUpdateUser = async () => {
+  const handleUpdateRestaurant = async () => {
     if (!validateFormData(formData) || !selectedUser) return;
 
     try {
@@ -90,21 +86,21 @@ const UserManagement = () => {
     }
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteRestaurant = async (id) => {
     try {
       await axios.delete(`${API_URL}${id}`);
-      fetchUsers();
+      fetchRestaurant();
     } catch (error) {
       console.error('Erro ao deletar usuário', error);
     }
   };
 
-  const handleReactiveUser = async (id) => {
+  const handleReactivateRestaurant = async (id) => {
     try {
       await axios.post(`${API_URL}${id}`);
-      fetchUsers();
+      fetchRestaurant();
     } catch (error) {
-      console.error('Erro ao reativar usuário', error);
+      console.error('Erro ao deletar usuário', error);
     }
   };
 
@@ -116,9 +112,9 @@ const UserManagement = () => {
 
   const handleSubmit = () => {
     if (view === 'create') {
-      handleCreateUser();
+      handleCreateRestaurant();
     } else if (view === 'update') {
-      handleUpdateUser();
+      handleUpdateRestaurant();
     }
   };
 
@@ -127,26 +123,26 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="user-management">
-      <h2>Gestão de Usuários</h2>
-      <div className="user-actions">
+    <div className="restaurant-management">
+      <h2>Gestão de Restaurantes</h2>
+      <div className="restaurant-actions">
         <button onClick={() => setView('list')}>Listar</button>
         <button onClick={() => { resetForm(); setView('create'); }}>Cadastrar</button>
       </div>
-      <div className="user-content">
+      <div className="restaurant-content">
         {view === 'list' && (
-          <UserList
-            users={users}
+          <RestaurantList
+            restaurants={restaurants}
             onEdit={handleEdit}
-            onDelete={handleDeleteUser}
-            onReactivate={handleReactiveUser}
+            onDelete={handleDeleteRestaurant}
+            onReactivate={handleReactivateRestaurant}
             page={page}
             totalPages={totalPages}
             onPageChange={handlePageChange}
           />
         )}
         {(view === 'create' || view === 'update') && (
-          <UserForm
+          <RestaurantForm
             mode={view}
             formData={formData}
             onChange={handleInputChange}
@@ -158,4 +154,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default RestaurantManagement;

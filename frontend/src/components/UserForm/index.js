@@ -35,6 +35,13 @@ const UserForm = ({ mode, formData, onChange, onSubmit }) => {
         value={formData.telefone}
         onChange={onChange}
       />
+      <input
+        type="password"
+        name="senha"
+        placeholder="Senha"
+        value={formData.senha}
+        onChange={onChange}
+      />
       <button onClick={onSubmit}>Salvar</button>
     </div>
   );

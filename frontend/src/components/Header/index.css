@@ -26,6 +26,10 @@
     cursor: pointer;
 }
 
+.nav-item.user-name{
+    cursor: auto;
+}
+
 .create-account {
     font-size: 0.9rem;
     color: #e60014;
@@ -38,7 +42,8 @@
     gap: 15px;
 }
 
-.login-button {
+.login-button,
+.logout-button {
     background-color: #e60014;
     color: white;
     border: none;

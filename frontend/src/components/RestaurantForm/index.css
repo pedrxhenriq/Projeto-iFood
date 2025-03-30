@@ -1,4 +1,4 @@
-.user-form {
+.restaurant-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -7,36 +7,36 @@
   border-radius: 12px;
   max-width: 600px;
   margin: 20px auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.user-form h3 {
+.restaurant-form h3 {
   text-align: center;
   margin-bottom: 10px;
   color: #d6001c;
 }
 
-.user-form input {
+.restaurant-form input {
   padding: 10px;
-  font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 14px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.user-form button {
+.restaurant-form button {
   padding: 10px;
   background-color: #d6001c;
   color: white;
   border: none;
   border-radius: 6px;
+  cursor: pointer;
   font-weight: bold;
   font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
-.user-form button:hover {
+.restaurant-form button:hover {
   background-color: #a30015;
 }

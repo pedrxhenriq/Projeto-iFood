@@ -4,3 +4,5 @@ pymysql
 cryptography
 python-dotenv
 flask-cors
+flask-oauthlib
+werkzeug
