@@ -4,12 +4,13 @@ import RestaurantList from '../RestaurantList/index.js';
 import RestaurantForm from '../RestaurantForm/index.js';
 import './index.css';
 
-const API_URL = 'http://localhost:5000/users/';
+const API_URL = 'http://localhost:5000/restaurants/';
 
 const RestaurantManagement = () => {
   const [view, setView] = useState('list');
   const [restaurants, setRestaurants] = useState([]);
-  const [formData, setFormData] = useState({ nome: '', email: '', cpf: '', telefone: '' });
+  const [formData, setFormData] = useState({ name: '', cnpj: '', phone: '', address: '', restaurant_type_id: ''});
+  const [types, setTypes] = useState([]);  
   const [selectedUser, setSelectedUser] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -18,10 +19,17 @@ const RestaurantManagement = () => {
     if (view === 'list') fetchRestaurant();
   }, [view, page]);
 
+  useEffect(() => {
+    fetch(`${API_URL}types`)
+      .then((res) => res.json())
+      .then((data) => setTypes(data))
+      .catch((err) => console.error('Erro ao buscar tipos:', err));
+  }, []);
+
   const fetchRestaurant = async () => {
     try {
       const response = await axios.get(API_URL, { params: { page, per_page: 5 } });
-      setRestaurants(response.data.users);
+      setRestaurants(response.data.restaurants);
       setTotalPages(response.data.pages);
     } catch (error) {
       console.error('Erro ao buscar usuários', error);
@@ -37,30 +45,30 @@ const RestaurantManagement = () => {
     setSelectedUser(null);
   };
 
-  const validateFormData = ({ nome, email, cpf, telefone }) => {
-    if (!nome) {
-      alert('Preencha o nome do usuário antes de prosseguir.');
+  const validateFormData = ({ name, cnpj, phone, restaurant_type_id }) => {
+    if (!name) {
+      alert('Preencha o nome do restaurante antes de prosseguir.');
       return false;
     }
-    if (!email) {
-      alert('Preencha o email do usuário antes de prosseguir.');
+  
+    if (!cnpj || cnpj.toString().length !== 14 || !/^\d+$/.test(cnpj.toString())) {
+      alert('O CNPJ deve conter exatamente 14 dígitos numéricos.');
       return false;
     }
-
-    const isValidCPF = cpf && cpf.toString().length === 11 && /^\d+$/.test(cpf.toString());
-    const isValidTelefone = telefone && (telefone.toString().length === 11 || telefone.toString().length === 10) && /^\d+$/.test(telefone.toString());
-
-    if (!isValidCPF) {
-      alert('O CPF deve conter 11 dígitos numéricos.');
-      return false;
-    }
-    if (!isValidTelefone) {
+  
+    const isValidPhone = phone && (phone.toString().length === 10 || phone.toString().length === 11) && /^\d+$/.test(phone.toString());
+    if (!isValidPhone) {
       alert('O Telefone deve conter 10 ou 11 dígitos numéricos.');
       return false;
     }
-
+  
+    if (!restaurant_type_id) {
+      alert('Selecione uma categoria para o restaurante.');
+      return false;
+    }
+  
     return true;
-  };
+  };  
 
   const handleCreateRestaurant = async () => {
     if (!validateFormData(formData)) return;
@@ -147,6 +155,7 @@ const RestaurantManagement = () => {
             formData={formData}
             onChange={handleInputChange}
             onSubmit={handleSubmit}
+            types={types}
           />
         )}
       </div>

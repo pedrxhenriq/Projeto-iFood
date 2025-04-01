@@ -1,0 +1,23 @@
+.product-management {
+    padding: 2% 6%;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+.product-actions {
+    margin-bottom: 20px;
+}
+
+.product-actions button {
+    margin-right: 10px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #e60014;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.product-actions button:hover {
+    background-color: #bf0010;
+}

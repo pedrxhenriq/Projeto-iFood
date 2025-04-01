@@ -16,5 +16,11 @@ def create_app():
 
     from app.controllers.login import login_bp
     app.register_blueprint(login_bp, url_prefix='/login')
+
+    from app.controllers.restaurant import restaurant_bp
+    app.register_blueprint(restaurant_bp, url_prefix='/restaurants')
+
+    from app.controllers.product import product_bp
+    app.register_blueprint(product_bp, url_prefix='/products')
     
     return app

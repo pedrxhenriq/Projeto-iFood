@@ -40,3 +40,14 @@
 .restaurant-form button:hover {
   background-color: #a30015;
 }
+
+.restaurant-form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  background-color: white;
+}

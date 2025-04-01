@@ -1,17 +1,19 @@
 import React from 'react';
 import './index.css';
 
-const RestaurantForm = ({ mode, formData, onChange, onSubmit }) => {
+const RestaurantForm = ({ mode, formData, onChange, onSubmit, types }) => {
   return (
     <div className="restaurant-form">
       <h3>{mode === 'create' ? 'Cadastrar Restaurante' : 'Alterar Restaurante'}</h3>
+
       <input
         type="text"
-        name="nome"
+        name="name"
         placeholder="Nome do Restaurante"
-        value={formData.nome}
+        value={formData.name}
         onChange={onChange}
       />
+
       <input
         type="text"
         name="cnpj"
@@ -20,28 +22,37 @@ const RestaurantForm = ({ mode, formData, onChange, onSubmit }) => {
         value={formData.cnpj}
         onChange={onChange}
       />
+
       <input
         type="text"
-        name="telefone"
+        name="phone"
         placeholder="Telefone"
         maxLength={11}
-        value={formData.telefone}
+        value={formData.phone}
         onChange={onChange}
       />
+
       <input
         type="text"
-        name="endereco"
+        name="address"
         placeholder="Endereço"
-        value={formData.endereco}
+        value={formData.address}
         onChange={onChange}
       />
-      <input
-        type="text"
-        name="categoria"
-        placeholder="Categoria (Ex: Pizzaria, Sushi, etc.)"
-        value={formData.categoria}
+
+      <select
+        name="restaurant_type_id"
+        value={formData.restaurant_type_id}
         onChange={onChange}
-      />
+      >
+        <option value="">Selecione uma categoria</option>
+        {types?.map((type) => (
+          <option key={type.id} value={type.id}>
+            {type.name}
+          </option>
+        ))}
+      </select>
+
       <button onClick={onSubmit}>Salvar</button>
     </div>
   );

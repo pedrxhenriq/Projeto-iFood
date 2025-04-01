@@ -3,9 +3,17 @@ import { FaEdit, FaTrash, FaUndo } from 'react-icons/fa';
 import Pagination from '../Pagination/index.js';
 import './index.css';
 
-const formatCPF = (cpf) => {
-  if (!cpf) return 'N/A';
-  return cpf.toString().replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+const formatCNPJ = (cnpj) => {
+  if (!cnpj) return 'N/A';
+
+  const cleaned = cnpj.toString().padStart(14, '0').replace(/\D/g, '');
+
+  if (cleaned.length !== 14) return cnpj;
+
+  return cleaned.replace(
+    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+    '$1.$2.$3/$4-$5'
+  );
 };
 
 const formatTelefone = (telefone) => {
@@ -38,17 +46,17 @@ const RestaurantList = ({ restaurants, onEdit, onDelete, onReactivate, page, tot
           </tr>
         </thead>
         <tbody>
-          {restaurants.map((restaurant) => (
+          {restaurants?.map((restaurant) => (
             <tr key={restaurant.id}>
               <td>{restaurant.id}</td>
-              <td>{restaurant.nome}</td>
-              <td>{restaurant.cnpj}</td>
-              <td>{restaurant.telefone}</td>
-              <td>{restaurant.endereco}</td>
-              <td>{restaurant.categoria}</td>
-              <td>{restaurant.ativo ? 'Ativo' : 'Inativo'}</td>
+              <td>{restaurant.name}</td>
+              <td>{formatCNPJ(restaurant.cnpj)}</td>
+              <td>{formatTelefone(restaurant.phone)}</td>
+              <td>{restaurant.address}</td>
+              <td>{restaurant.restaurant_type}</td>
+              <td>{restaurant.is_active ? 'Ativo' : 'Inativo'}</td>
               <td>
-                {restaurant.ativo ? (
+                {restaurant.is_active ? (
                   <>
                     <button className="edit-btn" onClick={() => onEdit(restaurant)}>
                       <FaEdit />
