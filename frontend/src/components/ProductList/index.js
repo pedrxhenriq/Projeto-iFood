@@ -9,6 +9,8 @@ const ProductList = ({ products, onEdit, onDelete, onReactivate, page, totalPage
             <table className="product-table">
                 <thead>
                     <tr>
+                        <th>ID</th>
+                        <th>Imagem</th>
                         <th>Nome</th>
                         <th>Preço</th>
                         <th>Tempo</th>
@@ -19,6 +21,12 @@ const ProductList = ({ products, onEdit, onDelete, onReactivate, page, totalPage
                 <tbody>
                     {products.map(prod => (
                         <tr key={prod.id}>
+                            <td>{prod.id}</td>
+                            <td>
+                                {prod.image_base64 && (
+                                    <img src={prod.image_base64} alt={prod.name} style={{ width: '80px' }} />
+                                )}
+                            </td>
                             <td>{prod.name}</td>
                             <td>R$ {parseFloat(prod.price).toFixed(2)}</td>
                             <td>{prod.preparation_time} min</td>

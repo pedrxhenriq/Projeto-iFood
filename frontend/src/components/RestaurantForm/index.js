@@ -1,7 +1,7 @@
 import React from 'react';
 import './index.css';
 
-const RestaurantForm = ({ mode, formData, onChange, onSubmit, types }) => {
+const RestaurantForm = ({ mode, formData, onChange, onImageChange, onSubmit, types }) => {
   return (
     <div className="restaurant-form">
       <h3>{mode === 'create' ? 'Cadastrar Restaurante' : 'Alterar Restaurante'}</h3>
@@ -52,6 +52,27 @@ const RestaurantForm = ({ mode, formData, onChange, onSubmit, types }) => {
           </option>
         ))}
       </select>
+
+      <div className="form-group">
+        <label htmlFor="image">Imagem do Restaurante</label>
+        <input
+          type="file"
+          id="image"
+          accept="image/*"
+          onChange={onImageChange}
+        />
+      </div>
+
+      {formData.image_base64 && (
+        <div className="image-preview">
+          <p>Prévia da imagem atual:</p>
+          <img
+            src={formData.image_base64}
+            alt="Imagem do Restaurante"
+            style={{ width: '150px', borderRadius: '8px', marginTop: '8px' }}
+          />
+        </div>
+      )}
 
       <button onClick={onSubmit}>Salvar</button>
     </div>

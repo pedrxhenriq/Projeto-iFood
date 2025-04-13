@@ -9,9 +9,16 @@ const API_URL = 'http://localhost:5000/restaurants/';
 const RestaurantManagement = () => {
   const [view, setView] = useState('list');
   const [restaurants, setRestaurants] = useState([]);
-  const [formData, setFormData] = useState({ name: '', cnpj: '', phone: '', address: '', restaurant_type_id: ''});
-  const [types, setTypes] = useState([]);  
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    cnpj: '',
+    phone: '',
+    address: '',
+    restaurant_type_id: '',
+    image_base64: ''
+  });
+  const [types, setTypes] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -32,8 +39,22 @@ const RestaurantManagement = () => {
       setRestaurants(response.data.restaurants);
       setTotalPages(response.data.pages);
     } catch (error) {
-      console.error('Erro ao buscar usuários', error);
+      console.error('Erro ao buscar restaurantes', error);
     }
+  };
+
+  const handleImageChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setFormData((prev) => ({
+                  ...prev,
+                  image_base64: reader.result
+              }));
+          };
+          reader.readAsDataURL(file);
+      }
   };
 
   const handleInputChange = (e) => {
@@ -41,8 +62,14 @@ const RestaurantManagement = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nome: '', email: '', cpf: '', telefone: '' });
-    setSelectedUser(null);
+    setFormData({
+      nome: '',
+      email: '',
+      cpf: '',
+      telefone: '',
+      image_base64: ''
+    });
+    setEditingId(null);
   };
 
   const validateFormData = ({ name, cnpj, phone, restaurant_type_id }) => {
@@ -50,25 +77,25 @@ const RestaurantManagement = () => {
       alert('Preencha o nome do restaurante antes de prosseguir.');
       return false;
     }
-  
+
     if (!cnpj || cnpj.toString().length !== 14 || !/^\d+$/.test(cnpj.toString())) {
       alert('O CNPJ deve conter exatamente 14 dígitos numéricos.');
       return false;
     }
-  
+
     const isValidPhone = phone && (phone.toString().length === 10 || phone.toString().length === 11) && /^\d+$/.test(phone.toString());
     if (!isValidPhone) {
       alert('O Telefone deve conter 10 ou 11 dígitos numéricos.');
       return false;
     }
-  
+
     if (!restaurant_type_id) {
       alert('Selecione uma categoria para o restaurante.');
       return false;
     }
-  
+
     return true;
-  };  
+  };
 
   const handleCreateRestaurant = async () => {
     if (!validateFormData(formData)) return;
@@ -83,10 +110,10 @@ const RestaurantManagement = () => {
   };
 
   const handleUpdateRestaurant = async () => {
-    if (!validateFormData(formData) || !selectedUser) return;
+    if (!validateFormData(formData) || !editingId) return;
 
     try {
-      await axios.patch(`${API_URL}${selectedUser.id}`, formData);
+      await axios.patch(`${API_URL}${editingId}`, formData);
       resetForm();
       setView('list');
     } catch (error) {
@@ -108,13 +135,13 @@ const RestaurantManagement = () => {
       await axios.post(`${API_URL}${id}`);
       fetchRestaurant();
     } catch (error) {
-      console.error('Erro ao deletar usuário', error);
+      console.error('Erro ao reativar restaurante', error);
     }
   };
 
-  const handleEdit = (user) => {
-    setSelectedUser(user);
-    setFormData(user);
+  const handleEdit = (restaurant) => {
+    setEditingId(restaurant.id);
+    setFormData(restaurant);
     setView('update');
   };
 
@@ -154,6 +181,7 @@ const RestaurantManagement = () => {
             mode={view}
             formData={formData}
             onChange={handleInputChange}
+            onImageChange={handleImageChange}
             onSubmit={handleSubmit}
             types={types}
           />

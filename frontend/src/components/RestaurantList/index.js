@@ -36,6 +36,7 @@ const RestaurantList = ({ restaurants, onEdit, onDelete, onReactivate, page, tot
         <thead>
           <tr>
             <th>ID</th>
+            <th>Imagem</th>
             <th>Nome</th>
             <th>CNPJ</th>
             <th>Telefone</th>
@@ -49,6 +50,11 @@ const RestaurantList = ({ restaurants, onEdit, onDelete, onReactivate, page, tot
           {restaurants?.map((restaurant) => (
             <tr key={restaurant.id}>
               <td>{restaurant.id}</td>
+              <td>
+                {restaurant.image_base64 && (
+                  <img src={restaurant.image_base64} alt={restaurant.name} style={{ width: '80px' }} />
+                )}
+              </td>
               <td>{restaurant.name}</td>
               <td>{formatCNPJ(restaurant.cnpj)}</td>
               <td>{formatTelefone(restaurant.phone)}</td>

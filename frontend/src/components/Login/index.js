@@ -44,7 +44,7 @@ const Login = () => {
       login(response.data.user);
       navigate('/');
     } catch (err) {
-        setError(err.response?.data?.error || 'Erro no login com Google');
+      setError(err.response?.data?.error || 'Erro no login com Google');
     }
   };
 
@@ -79,6 +79,17 @@ const Login = () => {
             onError={() => setError('Erro no login com Google')}
           />
         </div>
+
+        <button className="facebook-login">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+            alt="Facebook logo"
+            className="facebook-icon"
+            width={25}
+            height={25}
+          />
+          Fazer login com o Facebook
+        </button>
 
         {error && <p className="error">{error}</p>}
       </div>

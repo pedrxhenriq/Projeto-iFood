@@ -22,5 +22,8 @@ def create_app():
 
     from app.controllers.product import product_bp
     app.register_blueprint(product_bp, url_prefix='/products')
+
+    from app.controllers.marketplace import marketplace_bp
+    app.register_blueprint(marketplace_bp, url_prefix='/marketplace')
     
     return app

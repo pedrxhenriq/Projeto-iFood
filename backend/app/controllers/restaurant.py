@@ -27,6 +27,7 @@ def get_restaurants():
             'cnpj': r.cnpj,
             'address': r.address,
             'phone': r.phone,
+            'image_base64': r.image_base64,
             'restaurant_type_id': r.restaurant_type_id,
             'restaurant_type': r.restaurant_type.name if r.restaurant_type else None,
             'is_active': r.is_active,
@@ -55,6 +56,7 @@ def get_restaurant(id):
         'cnpj': restaurant.cnpj,
         'address': restaurant.address,
         'phone': restaurant.phone,
+        'image_base64': restaurant.image_base64,
         'restaurant_type_id': restaurant.restaurant_type_id,
         'restaurant_type': restaurant.restaurant_type.name if restaurant.restaurant_type else None
     }), 200
@@ -71,7 +73,8 @@ def create_restaurant():
         cnpj=data['cnpj'],
         address=data.get('address'),
         phone=data.get('phone'),
-        restaurant_type_id=data['restaurant_type_id']
+        restaurant_type_id=data['restaurant_type_id'],
+        image_base64=data.get('image_base64'),
     )
     db.session.add(new_restaurant)
     db.session.commit()
@@ -94,6 +97,7 @@ def update_restaurant(id):
     restaurant.address = data.get('address', restaurant.address)
     restaurant.phone = data.get('phone', restaurant.phone)
     restaurant.restaurant_type_id = data.get('restaurant_type_id', restaurant.restaurant_type_id)
+    restaurant.image_base64 = data.get('image_base64', restaurant.image_base64)
 
     db.session.commit()
     return jsonify({'message': 'Restaurante atualizado com sucesso'}), 200

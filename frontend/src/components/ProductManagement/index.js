@@ -4,6 +4,8 @@ import ProductForm from '../ProductForm/index.js';
 import ProductList from '../ProductList/index.js';
 import './index.css';
 
+const API_URL = 'http://localhost:5000/products/';
+
 const ProductManagement = () => {
     const [view, setView] = useState('list');
     const [products, setProducts] = useState([]);
@@ -12,7 +14,8 @@ const ProductManagement = () => {
         description: '',
         preparation_time: '',
         price: '',
-        restaurant_id: ''
+        restaurant_id: '',
+        image_base64: ''
     });
     const [restaurants, setRestaurants] = useState([]);
     const [page, setPage] = useState(1);
@@ -21,18 +24,18 @@ const ProductManagement = () => {
 
     const fetchProducts = async () => {
         try {
-            const { data } = await axios.get(`/products?page=${page}`);
-            setProducts(data.products);
-            setTotalPages(data.pages);
+            const response = await axios.get(API_URL, { params: { page, per_page: 5 } });
+            setProducts(response.data.products);
+            setTotalPages(response.data.pages);
         } catch (error) {
-            console.error('Erro ao buscar produtos:', error);
+            console.error('Erro ao buscar produtos', error);
         }
     };
 
     const fetchRestaurants = async () => {
         try {
-            const { data } = await axios.get('/restaurants');
-            setRestaurants(data.restaurants || []);
+            const { data } = await axios.get(`${API_URL}/restaurants`);
+            setRestaurants(data || []);
         } catch (error) {
             console.error('Erro ao buscar restaurantes:', error);
         }
@@ -49,9 +52,24 @@ const ProductManagement = () => {
             description: '',
             preparation_time: '',
             price: '',
-            restaurant_id: ''
+            restaurant_id: '',
+            image_base64: ''
         });
         setEditingId(null);
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData((prev) => ({
+                    ...prev,
+                    image_base64: reader.result
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -62,9 +80,9 @@ const ProductManagement = () => {
     const handleSubmit = async () => {
         try {
             if (editingId) {
-                await axios.put(`/products/${editingId}`, formData);
+                await axios.put(`${API_URL}${editingId}`, formData);
             } else {
-                await axios.post('/products', formData);
+                await axios.post(`${API_URL}`, formData);
             }
             fetchProducts();
             resetForm();
@@ -75,23 +93,26 @@ const ProductManagement = () => {
     };
 
     const handleEdit = (product) => {
-        setFormData({
-            name: product.name,
-            description: product.description,
-            preparation_time: product.preparation_time,
-            price: product.price,
-            restaurant_id: product.restaurant_id
-        });
+        setFormData(product);
         setEditingId(product.id);
         setView('update');
     };
 
     const handleDeleteProduct = async (id) => {
         try {
-            await axios.delete(`/products/${id}`);
+            await axios.delete(`${API_URL}${id}`);
             fetchProducts();
         } catch (error) {
             console.error('Erro ao excluir produto:', error);
+        }
+    };
+
+    const handleReactivateProduct = async (id) => {
+        try {
+            await axios.post(`${API_URL}${id}`);
+            fetchProducts();
+        } catch (error) {
+            console.error('Erro ao reativar produto', error);
         }
     };
 
@@ -110,6 +131,7 @@ const ProductManagement = () => {
                         products={products}
                         onEdit={handleEdit}
                         onDelete={handleDeleteProduct}
+                        onReactivate={handleReactivateProduct}
                         page={page}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
@@ -120,6 +142,7 @@ const ProductManagement = () => {
                         mode={view}
                         formData={formData}
                         onChange={handleInputChange}
+                        onImageChange={handleImageChange}
                         onSubmit={handleSubmit}
                         restaurants={restaurants}
                     />

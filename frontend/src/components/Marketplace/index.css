@@ -1,34 +1,36 @@
 .marketplace-container {
   position: relative;
-  text-align: center;
-  color: #333;
   font-family: Arial, sans-serif;
+  color: #333;
 }
 
 .marketplace-background {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 80vh;
-  z-index: -1;
+  height: 75vh;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .marketplace-background img {
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
 }
 
 .marketplace-content {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 75vh;
+  width: 100%;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: auto;
-  padding: 7% 1% 1% 1%;
+  justify-content: center;
+  padding: 0 1rem;
+  text-align: center;
 }
 
 .marketplace-title {
@@ -81,11 +83,191 @@
   border-radius: 15px;
   font-size: 1rem;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.marketplace-category-item.selected {
+  background-color: #ff2e2e;
+  color: white;
+}
+
+.marketplace-results-section {
+  padding: 3rem 2rem 4rem;
+  background-color: #f9f9f9;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.marketplace-results-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #333;
+  text-align: left;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.marketplace-results-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.restaurant-card-simple {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  width: calc(33.333% - 20px);
+  min-width: 280px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+
+.restaurant-card-simple img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.restaurant-card-simple p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #222;
+  text-align: left;
+}
+
+.restaurant-card-simple:hover {
+  transform: scale(1.05);
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  width: calc(25% - 20px);
+  min-width: 220px;
+  box-sizing: border-box;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+.product-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.product-card .product-name {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.product-card .product-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.product-card .product-restaurant {
+  font-size: 0.875rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.restaurant-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.restaurant-header img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.restaurant-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.restaurant-header-info .restaurant-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.restaurant-header-info .restaurant-address {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.delivery-info {
+  font-size: 0.85rem;
+  color: #333;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delivery-fee {
+  color: #0a7c59;
+  font-weight: 500;
 }
 
 @media (max-width: 600px) {
   .marketplace-categories {
     flex-direction: column;
     align-items: center;
+  }
+}
+
+@media (max-width: 992px) {
+  .restaurant-card-simple {
+    width: calc(50% - 20px);
+  }
+}
+
+@media (max-width: 600px) {
+  .restaurant-card-simple {
+    width: 100%;
   }
 }

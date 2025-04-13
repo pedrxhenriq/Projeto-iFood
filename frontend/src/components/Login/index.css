@@ -59,3 +59,24 @@
     font-weight: bold;
   }
   
+  .facebook-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: white;
+    border: 1px solid #dddddd;
+    color: #4267B2;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .facebook-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
