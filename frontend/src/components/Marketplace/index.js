@@ -5,12 +5,13 @@ import background from '../../assets/alimentos-bg.webp';
 
 const API_URL = 'http://localhost:5000/marketplace/';
 
-const Marketplace = () => {
+const Marketplace = ({ cart, setCart }) => {
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState({ restaurants: [], products: [] });
+  const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
     axios.get(`${API_URL}types`)
@@ -42,15 +43,43 @@ const Marketplace = () => {
   const handleRestaurantClick = (restaurant) => {
     setSelectedType(null);
     setRestaurants([]);
-  
+
     setSearchResults({
       restaurants: [restaurant],
       products: restaurant.preview_products || [],
     });
-  
+
     handleSearch(restaurant.name);
   };
-  
+
+  const addToCart = (product, quantity) => {
+    setCart((prevCart) => {
+      const existingProduct = prevCart.find((item) => item.id === product.id);
+      if (existingProduct) {
+        return prevCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: quantity }
+            : item
+        );
+      } else {
+        return [...prevCart, { ...product, quantity }];
+      }
+    });
+  };
+
+  const handleIncrease = (id) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 1) + 1,
+    }));
+  };
+
+  const handleDecrease = (id) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1, 1),
+    }));
+  };
 
   return (
     <div className="marketplace-container">
@@ -83,7 +112,7 @@ const Marketplace = () => {
                 setSelectedType(item.name);
                 setSearchQuery('');
                 setSearchResults({ restaurants: [], products: [] });
-              }}              
+              }}
             >
               {item.name}
             </span>
@@ -143,9 +172,23 @@ const Marketplace = () => {
                   />
                   {prod.restaurant_name}
                 </div>
-
                 <div className="delivery-info">
                   {prod.preparation_time} min • <span className="delivery-fee">Grátis</span>
+                </div>
+                <div className="add-to-cart-section">
+                  <div className="quantity-selector">
+                    <button onClick={() => handleDecrease(prod.id)}>-</button>
+                    <div className="quantity-number">
+                      <span>{quantities[prod.id] || 1}</span>
+                    </div>
+                    <button onClick={() => handleIncrease(prod.id)}>+</button>
+                  </div>
+                  <button
+                    className="add-to-cart-button"
+                    onClick={() => addToCart(prod, quantities[prod.id] || 1)}
+                  >
+                    <span>Adicionar</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -185,6 +228,21 @@ const Marketplace = () => {
                       </div>
                       <div className="delivery-info">
                         {prod.preparation_time} min • <span className="delivery-fee">Grátis</span>
+                      </div>
+                      <div className="add-to-cart-section">
+                        <div className="quantity-selector">
+                          <button onClick={() => handleDecrease(prod.id)}>-</button>
+                          <div className="quantity-number">
+                            <span>{quantities[prod.id] || 1}</span>
+                          </div>
+                          <button onClick={() => handleIncrease(prod.id)}>+</button>
+                        </div>
+                        <button
+                          className="add-to-cart-button"
+                          onClick={() => addToCart(prod, quantities[prod.id] || 1)}
+                        >
+                          <span>Adicionar</span>
+                        </button>
                       </div>
                     </div>
                   ))}

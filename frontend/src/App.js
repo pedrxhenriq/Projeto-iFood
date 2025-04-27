@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header/index.js';
 import Marketplace from './components/Marketplace/index.js';
@@ -10,13 +11,15 @@ import PrivateRoute from './components/PrivateRoute/index.js';
 import './App.css';
 
 function App() {
+  const [cart, setCart] = useState([]);
+
   return (
     <Router>
       <div className="App">
-        <Header />
+        <Header cart={cart} setCart={setCart}/>
         <main>
           <Routes>
-            <Route path="/" element={<Marketplace />} /> {/* agora é pública */}
+            <Route path="/" element={<Marketplace cart={cart} setCart={setCart} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/users" element={<PrivateRoute element={<UserManagement />} />} />
             <Route path="/enderecos" element={<PrivateRoute element={<AddressManagement />} />} />

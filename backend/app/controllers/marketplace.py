@@ -3,6 +3,7 @@ from app import db
 from app.models.products import Product
 from app.models.restaurant import Restaurant
 from app.models.restaurant_type import RestaurantType
+from app.models.pagamento_opcoes import PagamentoOpcao
 
 marketplace_bp = Blueprint('marketplace_bp', __name__)
 
@@ -10,6 +11,12 @@ marketplace_bp = Blueprint('marketplace_bp', __name__)
 def get_types():
     types = RestaurantType.query.all()
     result = [{'id': t.id, 'name': t.name} for t in types]
+    return jsonify(result), 200
+
+@marketplace_bp.route('/opcoes-pagamento', methods=['GET'])
+def get_payment_options():
+    types = PagamentoOpcao.query.all()
+    result = [{'id': t.id, 'tipo_pagamento': t.tipo_pagamento, 'metodo': t.metodo} for t in types]
     return jsonify(result), 200
 
 @marketplace_bp.route('/restaurants/by-type', methods=['GET'])
@@ -58,6 +65,7 @@ def search():
             {
                 'id': p.id,
                 'name': p.name,
+                'description': p.description,
                 'price': float(p.price),
                 'preparation_time': p.preparation_time,
                 'image_base64': p.image_base64
