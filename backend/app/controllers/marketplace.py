@@ -64,6 +64,7 @@ def search():
         r_dict['preview_products'] = [
             {
                 'id': p.id,
+                'restaurant_id': p.restaurant_id,
                 'name': p.name,
                 'description': p.description,
                 'price': float(p.price),

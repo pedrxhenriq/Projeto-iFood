@@ -1,0 +1,16 @@
+.detalhe-pedido {
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.item-pedido {
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.fase-pedido {
+  margin-bottom: 10px;
+}

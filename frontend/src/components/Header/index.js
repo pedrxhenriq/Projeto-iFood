@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { FaShoppingCart } from "react-icons/fa";
+import React, { useEffect, useRef, useContext, useState } from 'react';
+import { FaShoppingCart, FaClipboardList, FaChartBar } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import './index.css';
@@ -9,6 +9,21 @@ const Header = ({ cart, setCart }) => {
   const navigate = useNavigate();
   const { usuario, logout } = useContext(AuthContext);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPedidosOpen, setIsPedidosOpen] = useState(false);
+  const pedidoRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (pedidoRef.current && !pedidoRef.current.contains(event.target)) {
+        setIsPedidosOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -28,11 +43,34 @@ const Header = ({ cart, setCart }) => {
             <span className="nav-item" onClick={() => navigate('/enderecos')}>Endereços</span>
           </nav>
 
-          <div className="cart-icon" onClick={() => setIsCartOpen(true)}>
-            <FaShoppingCart size={24} />
-            {cart.length > 0 && (
-              <span className="cart-count">{cart.length}</span>
-            )}
+          <div className="icon-group">
+            <div className="cart-icon" onClick={() => setIsCartOpen(true)}>
+              <FaShoppingCart size={24} />
+              {cart.length > 0 && (
+                <span className="cart-count">{cart.length}</span>
+              )}
+            </div>
+
+            <div className="pedido-icon-wrapper" ref={pedidoRef}>
+              <div className="pedido-icon" onClick={() => setIsPedidosOpen(!isPedidosOpen)}>
+                <FaClipboardList size={24} />
+              </div>
+
+              {isPedidosOpen && (
+                <div className="pedido-dropdown">
+                  <div className="pedido-option" onClick={() => navigate('/meus-pedidos')}>
+                    Meus Pedidos
+                  </div>
+                  <div className="pedido-option" onClick={() => navigate('/restaurante-pedidos')}>
+                    Pedidos Restaurante
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="analytics-icon">
+              <FaChartBar size={24} onClick={() => navigate('/analytics')}/>
+            </div>
           </div>
 
           <div className="user-actions-home">

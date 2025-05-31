@@ -115,7 +115,14 @@ def delete_user(id):
 
 @user_bp.route('/enderecos/<int:user_id>', methods=['GET'])
 def listar_enderecos(user_id):
-    enderecos = Endereco.query.filter_by(user_id=user_id).all()
+    apenas_ativos = request.args.get('ativos', default=None)
+
+    query = Endereco.query.filter_by(user_id=user_id)
+    if apenas_ativos == '1':
+        query = query.filter_by(ativo=True)
+
+    enderecos = query.all()
+
     lista = [{
         'id': e.id,
         'logradouro': e.logradouro,

@@ -6,6 +6,11 @@ import UserManagement from './components/UserManagement/index.js';
 import RestaurantManagement from './components/RestaurantManagement/index.js';
 import ProductManagement from './components/ProductManagement/index.js';
 import AddressManagement from './components/AddressManagement/index.js';
+import MeusPedidos from './components/MeusPedidos/index.js';
+import DetalhePedido from './components/DetalhePedido/index.js';
+import PedidosRestaurante from './components/PedidosRestaurante/index.js';
+import DetalhePedidoRestaurante from './components/DetalhePedidoRestaurante/index.js';
+import Relatorio from './components/Analytics/index.js';
 import Login from './components/Login/index.js';
 import PrivateRoute from './components/PrivateRoute/index.js';
 import './App.css';
@@ -16,7 +21,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Header cart={cart} setCart={setCart}/>
+        <Header cart={cart} setCart={setCart} />
         <main>
           <Routes>
             <Route path="/" element={<Marketplace cart={cart} setCart={setCart} />} />
@@ -25,6 +30,9 @@ function App() {
             <Route path="/enderecos" element={<PrivateRoute element={<AddressManagement />} />} />
             <Route path="/restaurantes" element={<PrivateRoute element={<RestaurantManagement />} />} />
             <Route path="/produtos" element={<PrivateRoute element={<ProductManagement />} />} />
+            <Route path="/meus-pedidos" element={<PrivateRoute element={<MeusPedidos />} />} />
+            <Route path="/restaurante-pedidos" element={<PrivateRoute element={<PedidosRestaurante />} />} />
+            <Route path="/analytics" element={<PrivateRoute element={<Relatorio />} />} />
           </Routes>
         </main>
       </div>

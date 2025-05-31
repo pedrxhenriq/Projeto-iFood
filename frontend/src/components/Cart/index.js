@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaTimes, FaHome, FaCheckCircle } from "react-icons/fa";
 import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
 import './index.css';
 
-const API_URL = 'http://localhost:5000/marketplace/';
+const API_URL = 'http://localhost:5000/pedido/';
 
 const CartModal = ({ cart, setCart, onClose }) => {
     const { usuario } = useContext(AuthContext);
@@ -35,7 +35,7 @@ const CartModal = ({ cart, setCart, onClose }) => {
 
     const fetchEnderecos = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/users/enderecos/${usuario.id}`);
+            const response = await axios.get(`http://localhost:5000/users/enderecos/${usuario.id}?ativos=1`);
             const dataComTempo = response.data.map(endereco => ({
                 ...endereco,
                 tempoEntrega: Math.floor(Math.random() * (20 - 8 + 1)) + 8
@@ -71,13 +71,36 @@ const CartModal = ({ cart, setCart, onClose }) => {
         if (stage === 'payment') setStage('address');
     };
 
-    const handleRealizarPedido = () => {
+    const handleRealizarPedido = async () => {
         if (!selectedPagamento) {
             alert('Selecione uma forma de pagamento!');
             return;
         }
-        console.log('Pedido finalizado!');
-        // onClose();
+
+        const resumoPedido = {
+            user_id: usuario.id,
+            tipoEntrega,
+            endereco: tipoEntrega === 'entregar' ? enderecoSelecionado : 'Retirada no local',
+            formaPagamento: opcoesPagamento.find(op => op.id === selectedPagamento),
+            itens: cart,
+            total: totalPrice.toFixed(2),
+            tempoPreparo: `${maxPreparationTime} min`,
+            tempoEntrega: tipoEntrega === 'entregar' && enderecoSelecionado
+                ? `${enderecoSelecionado.tempoEntrega} min`
+                : '-',
+            tempoTotalEstimado: `${tempoTotalEstimado} min`
+        };
+
+        try {
+            const response = await axios.post(`${API_URL}`, resumoPedido);
+            alert('Pedido realizado com sucesso!');
+
+            setCart([]);
+            onClose();
+        } catch (error) {
+            console.error('Erro ao realizar o pedido:', error);
+            alert('Houve um problema ao enviar seu pedido. Tente novamente.');
+        }
     };
 
     const enderecoSelecionado = enderecos.find(e => e.id === selectedEnderecoId);
@@ -87,7 +110,6 @@ const CartModal = ({ cart, setCart, onClose }) => {
     const tempoTotalEstimado = tipoEntrega === 'entregar' && enderecoSelecionado
         ? maxPreparationTime + enderecoSelecionado.tempoEntrega
         : maxPreparationTime;
-
 
     return (
         <div className="cart-modal-overlay">
@@ -215,7 +237,16 @@ const CartModal = ({ cart, setCart, onClose }) => {
                             <button className="back-button" onClick={handleBack}>
                                 Voltar
                             </button>
-                            <button className="checkout-button" onClick={handleContinue}>
+                            <button
+                                className="checkout-button"
+                                onClick={() => {
+                                    if (tipoEntrega === 'entregar' && !selectedEnderecoId) {
+                                        alert('Por favor, selecione um endereço para entrega.');
+                                        return;
+                                    }
+                                    handleContinue();
+                                }}
+                            >
                                 Continuar
                             </button>
                         </div>

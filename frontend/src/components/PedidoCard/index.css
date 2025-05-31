@@ -1,0 +1,44 @@
+.pedido-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.pedido-card:hover {
+  background: #f9f9f9;
+}
+
+.status {
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.status.aguardando_aceite {
+  background-color: #ffeaa7;
+  color: #6d4c41;
+}
+
+.status.em_preparo {
+  background-color: #a29bfe;
+  color: white;
+}
+
+.status.em_entrega {
+  background-color: #74b9ff;
+  color: white;
+}
+
+.status.entregue {
+  background-color: #47a33a;
+  color: white;
+}
+
+.status.recusado {
+  background-color: #ef5555;
+  color: white;
+}

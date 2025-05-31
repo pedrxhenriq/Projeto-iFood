@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { width: 90%; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        h2 { color: #008cba; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Obrigado pelo seu pedido! 🙌</h2>
+        <p>Olá, {{nome_usuario}},</p>
+        <p>Seu pedido <strong>#{{pedido_id}}</strong> foi recebido com sucesso e está aguardando aceite pelo restaurante.</p>
+
+        <h3>Resumo do Pedido:</h3>
+        <table>
+            <thead>
+                <tr><th>Produto</th><th>Quantidade</th><th>Preço</th></tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td>{{item['name']}}</td>
+                    <td>{{item['quantity']}}</td>
+                    <td>R$ {{item['price']}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p><strong>Total:</strong> R$ {{total}}</p>
+        <p>Tipo de entrega: <strong>{{tipo_entrega}}</strong></p>
+        <p>Tempo estimado: <strong>{{tempo_total}} min</strong></p>
+
+        <p style="margin-top:20px;">📎 Em anexo, você encontra o resumo em PDF.</p><br>
+        <p><i>Mensagem enviada de forma automática, favor não responder.</i></p>
+    </div>
+</body>
+</html>
