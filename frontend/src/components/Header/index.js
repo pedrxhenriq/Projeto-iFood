@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import './index.css';
 import CartModal from '../Cart/index.js';
+import logo from '../../assets/logo.png';
 
 const Header = ({ cart, setCart }) => {
   const navigate = useNavigate();
@@ -32,7 +33,9 @@ const Header = ({ cart, setCart }) => {
 
   return (
     <header className="header">
-      <div className="logo" onClick={() => navigate('/')}>ifood</div>
+      <div className="logo" onClick={() => navigate('/')}>
+        <img src={logo} alt="iFood" width={126} height={126} />
+      </div>
 
       {usuario ? (
         <>
@@ -69,7 +72,7 @@ const Header = ({ cart, setCart }) => {
             </div>
 
             <div className="analytics-icon">
-              <FaChartBar size={24} onClick={() => navigate('/analytics')}/>
+              <FaChartBar size={24} onClick={() => navigate('/analytics')} />
             </div>
           </div>
 
