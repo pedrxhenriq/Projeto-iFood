@@ -19,6 +19,9 @@ def login_google():
     if not user:
         return jsonify({'error': 'Usuário não cadastrado'}), 401
 
+    if not user.ativo:
+        return jsonify({'error': 'Usuário inativo'}), 403
+
     return jsonify({
         'message': 'Login bem-sucedido',
         'user': {
@@ -27,6 +30,7 @@ def login_google():
             'email': user.email
         }
     }), 200
+
 
 @login_bp.route('/', methods=['POST'])
 def login():
@@ -41,6 +45,9 @@ def login():
 
     if not user or not user.senha:
         return jsonify({'error': 'Usuário não encontrado ou senha não definida'}), 401
+
+    if not user.ativo:
+        return jsonify({'error': 'Usuário inativo'}), 403
 
     if not check_password_hash(user.senha, senha):
         return jsonify({'error': 'Senha incorreta'}), 401
