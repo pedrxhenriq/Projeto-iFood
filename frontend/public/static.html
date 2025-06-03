@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iFood Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
+    <style>
+        :root {
+            --ifood-red: #ea1d2c;
+            --ifood-red-light: #ff3b4a;
+            --ifood-red-dark: #c41020;
+            --ifood-gray: #a6a6a6;
+            --ifood-gray-light: #f2f2f2;
+            --ifood-gray-dark: #3e3e3e;
+            --ifood-success: #50b773;
+            --ifood-warning: #ffba00;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            color: var(--ifood-gray-dark);
+            padding-bottom: 80px;
+            overscroll-behavior: none;
+            padding: 2% 6%;
+        }
+
+        /* Date Filter */
+        .date-filter {
+            background-color: white;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .date-filter-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--ifood-gray-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-filter-title::before {
+            content: "date_range";
+            font-family: 'Material Icons Round';
+            color: var(--ifood-red);
+        }
+
+        .date-filter-options {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .date-filter-options::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-option {
+            background-color: var(--ifood-gray-light);
+            border: 1px solid #e4e4e4;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .date-option.active {
+            background-color: var(--ifood-red);
+            color: white;
+            border: 1px solid var(--ifood-red);
+        }
+
+        .custom-date-range {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .custom-date-input {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .custom-date-input input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e4e4e4;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .custom-date-input input:focus {
+            outline: none;
+            border-color: var(--ifood-red);
+            box-shadow: 0 0 0 2px rgba(234, 29, 44, 0.2);
+        }
+
+        .custom-date-input label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: var(--ifood-gray);
+        }
+
+        .apply-date-btn {
+            background-color: var(--ifood-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            align-self: flex-end;
+            transition: var(--transition);
+        }
+
+        .apply-date-btn:hover {
+            background-color: var(--ifood-red-dark);
+        }
+
+        /* Tabs Navigation */
+        .tab-navigation {
+            display: flex;
+            background-color: white;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tab-icon {
+            font-family: 'Material Icons Round';
+            font-size: 24px;
+        }
+
+        .tab.active {
+            color: var(--ifood-red);
+            border-bottom: 3px solid var(--ifood-red);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background-color: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #f1f1f1;
+            font-weight: 600;
+            color: var(--ifood-gray-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .card-title-icon {
+            color: var(--ifood-red);
+            font-family: 'Material Icons Round';
+            font-size: 20px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-action-btn {
+            background-color: var(--ifood-gray-light);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--ifood-gray-dark);
+        }
+
+        .card-action-btn:hover {
+            background-color: #e4e4e4;
+        }
+
+        .export-button {
+            background-color: var(--ifood-red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .export-button:hover {
+            background-color: var(--ifood-red-dark);
+        }
+
+        .export-button::before {
+            content: "download";
+            font-family: 'Material Icons Round';
+            font-size: 16px;
+        }
+
+        .card-content {
+            padding: 16px 20px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .data-table th {
+            color: var(--ifood-gray);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            font-size: 14px;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: var(--ifood-gray-light);
+        }
+
+        .restaurant-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .restaurant-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ifood-gray-dark);
+            font-weight: 600;
+            font-size: 12px;
+            object-fit: cover;
+        }
+
+        .highlight {
+            color: var(--ifood-red);
+            font-weight: 600;
+        }
+
+        .delivery-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .delivery-time-icon {
+            color: var(--ifood-gray);
+            font-family: 'Material Icons Round';
+            font-size: 16px;
+        }
+
+        .delivery-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .badge-success {
+            background-color: var(--ifood-success);
+        }
+
+        .badge-warning {
+            background-color: var(--ifood-warning);
+        }
+
+        .badge-danger {
+            background-color: var(--ifood-red);
+        }
+
+        .badge-neutral {
+            background-color: var(--ifood-gray);
+        }
+
+        .progress-bar {
+            height: 6px;
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--ifood-success);
+            border-radius: 3px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* Key Metrics */
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background-color: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .metric-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .metric-title {
+            color: var(--ifood-gray);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-icon {
+            color: var(--ifood-red);
+            font-family: 'Material Icons Round';
+            font-size: 18px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ifood-gray-dark);
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .trend-up {
+            color: var(--ifood-success);
+        }
+
+        .trend-down {
+            color: var(--ifood-red);
+        }
+
+        /* Loading Animation */
+        .loading-indicator {
+            text-align: center;
+            padding: 40px;
+            color: var(--ifood-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(234, 29, 44, 0.1);
+            border-top: 3px solid var(--ifood-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .ifood-logo {
+                font-size: 20px;
+            }
+
+            .card-header {
+                padding: 16px;
+            }
+
+            .card-content {
+                padding: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .restaurant-logo {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: white;
+            min-width: 180px;
+            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-sm);
+            z-index: 1;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--ifood-gray-light);
+        }
+
+        .dropdown-item-icon {
+            font-family: 'Material Icons Round';
+            font-size: 18px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px 12px 44px;
+            border: 1px solid #e4e4e4;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--ifood-red);
+            box-shadow: 0 0 0 2px rgba(234, 29, 44, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ifood-gray);
+            font-family: 'Material Icons Round';
+        }
+
+        /* Hidden class for filtering */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Date range indicator */
+        .date-range-indicator {
+            background-color: rgba(234, 29, 44, 0.1);
+            border: 1px solid var(--ifood-red);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--ifood-red);
+            font-weight: 500;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="date-filter">
+            <div class="date-filter-title">Período de Análise</div>
+            <div class="date-filter-options">
+                <div class="date-option" data-period="today">Hoje</div>
+                <div class="date-option" data-period="yesterday">Ontem</div>
+                <div class="date-option" data-period="last7days">Últimos 7 dias</div>
+                <div class="date-option active" data-period="last30days">Últimos 30 dias</div>
+                <div class="date-option" data-period="thismonth">Este mês</div>
+                <div class="date-option" data-period="lastmonth">Mês passado</div>
+                <div class="date-option" data-period="custom">Personalizado</div>
+            </div>
+            <div class="custom-date-range" style="display: none;">
+                <div class="custom-date-input">
+                    <label for="start-date">Data inicial</label>
+                    <input type="date" id="start-date" value="2025-04-20">
+                </div>
+                <div class="custom-date-input">
+                    <label for="end-date">Data final</label>
+                    <input type="date" id="end-date" value="2025-05-20">
+                </div>
+                <button class="apply-date-btn">Aplicar</button>
+            </div>
+            <div class="date-range-indicator" id="current-period" style="display: none;"></div>
+        </div>
+
+        <div class="key-metrics">
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">receipt_long</span>
+                    Total de Pedidos
+                </div>
+                <div class="metric-value" id="totalOrders">143.287</div>
+                <div class="metric-trend trend-up">
+                    <span class="material-icons-round">arrow_upward</span>
+                    <span id="ordersTrend">12.6% vs período anterior</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">access_time</span>
+                    Tempo Médio de Entrega
+                </div>
+                <div class="metric-value" id="avgDeliveryTime">31 min</div>
+                <div class="metric-trend trend-down">
+                    <span class="material-icons-round">arrow_downward</span>
+                    <span id="deliveryTimeTrend">2.8% vs período anterior</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">star</span>
+                    Avaliação Média
+                </div>
+                <div class="metric-value" id="avgRating">4.7</div>
+                <div class="metric-trend trend-up">
+                    <span class="material-icons-round">arrow_upward</span>
+                    <span id="ratingTrend">0.2% vs período anterior</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-navigation">
+            <div class="tab active" data-tab="products">
+                <span class="tab-icon">inventory_2</span>
+                Produtos
+            </div>
+            <div class="tab" data-tab="restaurants">
+                <span class="tab-icon">restaurant</span>
+                Restaurantes
+            </div>
+            <div class="tab" data-tab="delivery">
+                <span class="tab-icon">delivery_dining</span>
+                Entregas
+            </div>
+        </div>
+
+        <div id="products-tab" class="tab-content active">
+            <div class="search-bar">
+                <span class="search-icon">search</span>
+                <input type="text" class="search-input" id="products-search"
+                    placeholder="Buscar produto ou restaurante...">
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">trending_up</span>
+                        Produtos mais vendidos por loja
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportTableData('products-table')">Exportar</button>
+                        <button class="card-action-btn">
+                            <span class="material-icons-round">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <table class="data-table" id="products-table">
+                        <thead>
+                            <tr>
+                                <th>Restaurante</th>
+                                <th>Produto mais vendido</th>
+                                <th>Quantidade</th>
+                                <th>% do Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">McD</div>
+                                        McDonald's - Centro
+                                    </div>
+                                </td>
+                                <td>Combo Big Mac</td>
+                                <td class="highlight">5.487</td>
+                                <td>32.8%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">PH</div>
+                                        Pizza Hut - Pinheiros
+                                    </div>
+                                </td>
+                                <td>Pizza de Calabresa G</td>
+                                <td class="highlight">4.923</td>
+                                <td>28.4%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">AC</div>
+                                        Açaí Concept - Vila Olímpia
+                                    </div>
+                                </td>
+                                <td>Açaí 500ml</td>
+                                <td class="highlight">4.215</td>
+                                <td>41.2%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">HB</div>
+                                        Habibs - Shopping Norte
+                                    </div>
+                                </td>
+                                <td>Coxinha de Frango</td>
+                                <td class="highlight">3.872</td>
+                                <td>22.6%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">CiB</div>
+                                        China in Box - Zona Sul
+                                    </div>
+                                </td>
+                                <td>Yakisoba Tradicional</td>
+                                <td class="highlight">3.654</td>
+                                <td>25.1%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">OB</div>
+                                        Outback - Jardins
+                                    </div>
+                                </td>
+                                <td>Kookaburra Wings</td>
+                                <td class="highlight">3.421</td>
+                                <td>18.9%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">SD</div>
+                                        Sushi Delivery - Consolação
+                                    </div>
+                                </td>
+                                <td>Combo 40 Peças</td>
+                                <td class="highlight">3.128</td>
+                                <td>27.4%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">analytics</span>
+                        Evolução de vendas por produto
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportChart('productsChart')">Exportar</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="restaurants-tab" class="tab-content">
+            <div class="search-bar">
+                <span class="search-icon">search</span>
+                <input type="text" class="search-input" id="restaurants-search" placeholder="Buscar restaurante...">
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">trending_up</span>
+                        Restaurantes com maior volume de vendas
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportTableData('restaurants-table')">Exportar</button>
+                        <button class="card-action-btn">
+                            <span class="material-icons-round">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <table class="data-table" id="restaurants-table">
+                        <thead>
+                            <tr>
+                                <th>Restaurante</th>
+                                <th>Total de Pedidos</th>
+                                <th>Pedidos por Dia</th>
+                                <th>Receita Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">McD</div>
+                                        McDonald's - Centro
+                                    </div>
+                                </td>
+                                <td class="highlight">8.743</td>
+                                <td>291</td>
+                                <td>R$ 489.652,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">CiB</div>
+                                        China in Box - Zona Sul
+                                    </div>
+                                </td>
+                                <td class="highlight">7.651</td>
+                                <td>255</td>
+                                <td>R$ 421.836,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">HB</div>
+                                        Habibs - Shopping Norte
+                                    </div>
+                                </td>
+                                <td class="highlight">6.935</td>
+                                <td>231</td>
+                                <td>R$ 352.487,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">OB</div>
+                                        Outback - Jardins
+                                    </div>
+                                </td>
+                                <td class="highlight">5.872</td>
+                                <td>196</td>
+                                <td>R$ 628.943,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">PH</div>
+                                        Pizza Hut - Pinheiros
+                                    </div>
+                                </td>
+                                <td class="highlight">5.763</td>
+                                <td>192</td>
+                                <td>R$ 389.521,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">AC</div>
+                                        Açaí Concept - Vila Olímpia
+                                    </div>
+                                </td>
+                                <td class="highlight">5.421</td>
+                                <td>181</td>
+                                <td>R$ 243.876,00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">SD</div>
+                                        Sushi Delivery - Consolação
+                                    </div>
+                                </td>
+                                <td class="highlight">4.987</td>
+                                <td>166</td>
+                                <td>R$ 398.765,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">bar_chart</span>
+                        Evolução do volume de vendas por restaurante
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportChart('restaurantsChart')">Exportar</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="restaurantsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">pie_chart</span>
+                        Distribuição de vendas por categoria
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportChart('categoriesChart')">Exportar</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="categoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="delivery-tab" class="tab-content">
+            <div class="search-bar">
+                <span class="search-icon">search</span>
+                <input type="text" class="search-input" id="delivery-search" placeholder="Buscar restaurante...">
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">schedule</span>
+                        Tempo médio de entrega por restaurante
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportTableData('delivery-table')">Exportar</button>
+                        <button class="card-action-btn">
+                            <span class="material-icons-round">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <table class="data-table" id="delivery-table">
+                        <thead>
+                            <tr>
+                                <th>Restaurante</th>
+                                <th>Tempo médio</th>
+                                <th>Entregas no prazo</th>
+                                <th>Tipo de entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">HB</div>
+                                        Habibs - Shopping Norte
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        25 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-success delivery-badge">97%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 97%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">Mista</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">AC</div>
+                                        Açaí Concept - Vila Olímpia
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        24 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-success delivery-badge">96%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 96%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">iFood</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">McD</div>
+                                        McDonald's - Centro
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        28 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-success delivery-badge">94%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 94%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">Própria</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">CiB</div>
+                                        China in Box - Zona Sul
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        32 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-warning delivery-badge">89%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill"
+                                                style="width: 89%; background-color: var(--ifood-warning);"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">Mista</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">OB</div>
+                                        Outback - Jardins
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        37 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-warning delivery-badge">86%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill"
+                                                style="width: 86%; background-color: var(--ifood-warning);"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">Própria</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">SD</div>
+                                        Sushi Delivery - Consolação
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        38 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-warning delivery-badge">82%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill"
+                                                style="width: 82%; background-color: var(--ifood-warning);"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">iFood</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="restaurant-name">
+                                        <div class="restaurant-logo">PH</div>
+                                        Pizza Hut - Pinheiros
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="delivery-time">
+                                        <span class="delivery-time-icon">schedule</span>
+                                        42 min
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="badge-danger delivery-badge">75%</span>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill"
+                                                style="width: 75%; background-color: var(--ifood-red);"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-neutral delivery-badge">Mista</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">timeline</span>
+                        Evolução do tempo médio de entrega
+                    </div>
+                    <div class="card-actions">
+                        <button class="export-button" onclick="exportChart('deliveryTimeChart')">Exportar</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="deliveryTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-title-icon">insights</span>
+                        Análise de desempenho de entrega
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-action-btn">
+                            <span class="material-icons-round">help_outline</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="material-icons-round"
+                                style="color: var(--ifood-success); background-color: rgba(80, 183, 115, 0.1); padding: 8px; border-radius: 50%;">trending_up</span>
+                            <div>
+                                <h4 style="margin-bottom: 4px; font-size: 14px;">Melhor desempenho</h4>
+                                <p style="color: var(--ifood-gray); font-size: 13px;">Açaí Concept - Vila Olímpia
+                                    reduziu seu tempo médio de entrega em 18% no último mês.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="material-icons-round"
+                                style="color: var(--ifood-warning); background-color: rgba(255, 186, 0, 0.1); padding: 8px; border-radius: 50%;">warning</span>
+                            <div>
+                                <h4 style="margin-bottom: 4px; font-size: 14px;">Atenção necessária</h4>
+                                <p style="color: var(--ifood-gray); font-size: 13px;">Pizza Hut - Pinheiros está com
+                                    taxa de entrega no prazo abaixo da meta (75% vs 85%).</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="material-icons-round"
+                                style="color: var(--ifood-red); background-color: rgba(234, 29, 44, 0.1); padding: 8px; border-radius: 50%;">trending_down</span>
+                            <div>
+                                <h4 style="margin-bottom: 4px; font-size: 14px;">Pior desempenho</h4>
+                                <p style="color: var(--ifood-gray); font-size: 13px;">Sushi Delivery - Consolação
+                                    aumentou seu tempo médio de entrega em 12% no último mês.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para os gráficos
+        let productsChart, restaurantsChart, categoriesChart, deliveryTimeChart;
+        let currentDateFilter = 'last30days';
+        let customStartDate = null;
+        let customEndDate = null;
+
+        // Dados simulados para diferentes períodos
+        const dataByPeriod = {
+            today: {
+                orders: '4.823',
+                revenue: 'R$ 287K',
+                deliveryTime: '29 min',
+                rating: '4.8',
+                ordersTrend: '+5.2%',
+                revenueTrend: '+3.1%',
+                deliveryTimeTrend: '-1.8%',
+                ratingTrend: '+0.1%'
+            },
+            yesterday: {
+                orders: '4.654',
+                revenue: 'R$ 276K',
+                deliveryTime: '32 min',
+                rating: '4.6',
+                ordersTrend: '-2.1%',
+                revenueTrend: '-1.5%',
+                deliveryTimeTrend: '+3.2%',
+                ratingTrend: '-0.3%'
+            },
+            last7days: {
+                orders: '31.287',
+                revenue: 'R$ 1,89M',
+                deliveryTime: '30 min',
+                rating: '4.7',
+                ordersTrend: '+8.4%',
+                revenueTrend: '+6.2%',
+                deliveryTimeTrend: '-1.2%',
+                ratingTrend: '+0.1%'
+            },
+            last30days: {
+                orders: '143.287',
+                revenue: 'R$ 8,75M',
+                deliveryTime: '31 min',
+                rating: '4.7',
+                ordersTrend: '+12.6%',
+                revenueTrend: '+8.3%',
+                deliveryTimeTrend: '-2.8%',
+                ratingTrend: '+0.2%'
+            },
+            thismonth: {
+                orders: '89.432',
+                revenue: 'R$ 5,12M',
+                deliveryTime: '30 min',
+                rating: '4.8',
+                ordersTrend: '+15.3%',
+                revenueTrend: '+11.7%',
+                deliveryTimeTrend: '-3.1%',
+                ratingTrend: '+0.4%'
+            },
+            lastmonth: {
+                orders: '128.765',
+                revenue: 'R$ 7,43M',
+                deliveryTime: '33 min',
+                rating: '4.6',
+                ordersTrend: '+7.8%',
+                revenueTrend: '+5.1%',
+                deliveryTimeTrend: '+1.2%',
+                ratingTrend: '-0.1%'
+            },
+            custom: {
+                orders: '0',
+                revenue: 'R$ 0',
+                deliveryTime: '0 min',
+                rating: '0.0',
+                ordersTrend: '0%',
+                revenueTrend: '0%',
+                deliveryTimeTrend: '0%',
+                ratingTrend: '0%'
+            }
+        };
+
+        // Função para atualizar métricas
+        function updateMetrics(period, customData = null) {
+            let data;
+
+            if (period === 'custom' && customData) {
+                data = customData;
+            } else {
+                data = dataByPeriod[period];
+            }
+
+            if (!data) return;
+
+            document.getElementById('totalOrders').textContent = data.orders;
+            document.getElementById('totalRevenue').textContent = data.revenue;
+            document.getElementById('avgDeliveryTime').textContent = data.deliveryTime;
+            document.getElementById('avgRating').textContent = data.rating;
+
+            document.getElementById('ordersTrend').textContent = data.ordersTrend + ' vs período anterior';
+            document.getElementById('revenueTrend').textContent = data.revenueTrend + ' vs período anterior';
+            document.getElementById('deliveryTimeTrend').textContent = data.deliveryTimeTrend + ' vs período anterior';
+            document.getElementById('ratingTrend').textContent = data.ratingTrend + ' vs período anterior';
+        }
+
+        // Função para calcular datas
+        function calculateDateRange(period, customStart = null, customEnd = null) {
+            const today = new Date();
+            let startDate, endDate;
+
+            if (period === 'custom' && customStart && customEnd) {
+                startDate = new Date(customStart);
+                endDate = new Date(customEnd);
+            } else {
+                switch (period) {
+                    case 'today':
+                        startDate = new Date(today);
+                        endDate = new Date(today);
+                        break;
+                    case 'yesterday':
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 1);
+                        endDate = new Date(startDate);
+                        break;
+                    case 'last7days':
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 6);
+                        endDate = new Date(today);
+                        break;
+                    case 'last30days':
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 29);
+                        endDate = new Date(today);
+                        break;
+                    case 'thismonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                        endDate = new Date(today);
+                        break;
+                    case 'lastmonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                        break;
+                    default:
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 29);
+                        endDate = new Date(today);
+                }
+            }
+
+            return { startDate, endDate };
+        }
+
+        // Função para gerar dados dos gráficos baseado no período
+        function generateChartData(period, customStart = null, customEnd = null) {
+            const { startDate, endDate } = calculateDateRange(period, customStart, customEnd);
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            const labels = [];
+            for (let i = 0; i < days; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                labels.push(date);
+            }
+
+            return {
+                labels,
+                days,
+                startDate,
+                endDate
+            };
+        }
+
+        // Função para calcular métricas personalizadas baseadas no período
+        function calculateCustomMetrics(startDate, endDate) {
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            // Simular cálculos baseados no período personalizado
+            const avgOrdersPerDay = Math.floor(Math.random() * 200) + 100;
+            const totalOrders = avgOrdersPerDay * days;
+            const avgRevenuePerOrder = Math.random() * 50 + 30;
+            const totalRevenue = totalOrders * avgRevenuePerOrder;
+
+            // Formatar valores
+            const formatRevenue = (value) => {
+                if (value >= 1000000) {
+                    return `R$ ${(value / 1000000).toFixed(2)}M`;
+                } else if (value >= 1000) {
+                    return `R$ ${(value / 1000).toFixed(0)}K`;
+                } else {
+                    return `R$ ${value.toFixed(0)}`;
+                }
+            };
+
+            return {
+                orders: totalOrders.toLocaleString('pt-BR'),
+                revenue: formatRevenue(totalRevenue),
+                deliveryTime: (Math.random() * 10 + 25).toFixed(0) + ' min',
+                rating: (Math.random() * 0.5 + 4.5).toFixed(1),
+                ordersTrend: (Math.random() * 20 - 10).toFixed(1) + '%',
+                revenueTrend: (Math.random() * 15 - 5).toFixed(1) + '%',
+                deliveryTimeTrend: (Math.random() * 6 - 3).toFixed(1) + '%',
+                ratingTrend: (Math.random() * 0.6 - 0.3).toFixed(1) + '%'
+            };
+        }
+
+        // Função para atualizar todos os gráficos
+        function updateAllCharts(period, customStart = null, customEnd = null) {
+            const { labels, days } = generateChartData(period, customStart, customEnd);
+
+            // Função auxiliar para gerar dados aleatórios baseados no período
+            const generateRandomData = (baseValue, variance) => {
+                return Array.from({ length: days }, () =>
+                    Math.floor(Math.random() * variance) + baseValue
+                );
+            };
+
+            // Atualizar gráfico de produtos
+            if (productsChart) {
+                productsChart.data.labels = labels;
+                productsChart.data.datasets[0].data = generateRandomData(150, 100);
+                productsChart.data.datasets[1].data = generateRandomData(120, 100);
+                productsChart.data.datasets[2].data = generateRandomData(100, 100);
+                productsChart.update('none'); // Sem animação para melhor performance
+            }
+
+            // Atualizar gráfico de restaurantes
+            if (restaurantsChart) {
+                restaurantsChart.data.labels = labels;
+                restaurantsChart.data.datasets[0].data = generateRandomData(250, 100);
+                restaurantsChart.data.datasets[1].data = generateRandomData(200, 100);
+                restaurantsChart.data.datasets[2].data = generateRandomData(180, 100);
+                restaurantsChart.update('none');
+            }
+
+            // Atualizar gráfico de tempo de entrega
+            if (deliveryTimeChart) {
+                deliveryTimeChart.data.labels = labels;
+                deliveryTimeChart.data.datasets[0].data = generateRandomData(23, 5);
+                deliveryTimeChart.data.datasets[1].data = generateRandomData(38, 7);
+                deliveryTimeChart.data.datasets[2].data = generateRandomData(34, 6);
+                deliveryTimeChart.update('none');
+            }
+
+            // O gráfico de categorias não precisa ser atualizado por período
+            // pois representa a distribuição geral
+        }
+
+        // Função para exibir indicador de período personalizado
+        function showCustomPeriodIndicator(startDate, endDate) {
+            const indicator = document.getElementById('current-period');
+            const formatDate = (date) => {
+                return new Date(date).toLocaleDateString('pt-BR');
+            };
+
+            indicator.textContent = `Período personalizado: ${formatDate(startDate)} até ${formatDate(endDate)}`;
+            indicator.style.display = 'block';
+        }
+
+        // Função para ocultar indicador de período
+        function hideCustomPeriodIndicator() {
+            const indicator = document.getElementById('current-period');
+            indicator.style.display = 'none';
+        }
+
+        // Função de busca
+        function setupSearch(inputId, tableId) {
+            const searchInput = document.getElementById(inputId);
+            const table = document.getElementById(tableId);
+
+            if (!searchInput || !table) return;
+
+            searchInput.addEventListener('input', function () {
+                const filter = this.value.toLowerCase();
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+                Array.from(rows).forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(filter)) {
+                        row.classList.remove('hidden');
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Função para exportar dados da tabela
+        function exportTableData(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            let csv = '';
+            const rows = table.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = [];
+
+                cells.forEach(cell => {
+                    let text = cell.textContent.trim().replace(/\n/g, ' ').replace(/,/g, ';');
+                    rowData.push('"' + text + '"');
+                });
+
+                csv += rowData.join(',') + '\n';
+            });
+
+            // Adicionar informações do período ao nome do arquivo
+            let filename = `${tableId}_${new Date().toISOString().split('T')[0]}`;
+            if (currentDateFilter === 'custom' && customStartDate && customEndDate) {
+                filename += `_${customStartDate}_${customEndDate}`;
+            } else {
+                filename += `_${currentDateFilter}`;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }// Função para exportar gráfico
+        function exportChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            if (!canvas) return;
+
+            // Adicionar informações do período ao nome do arquivo
+            let filename = `${chartId}_${new Date().toISOString().split('T')[0]}`;
+            if (currentDateFilter === 'custom' && customStartDate && customEndDate) {
+                filename += `_${customStartDate}_${customEndDate}`;
+            } else {
+                filename += `_${currentDateFilter}`;
+            }
+
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Função para aplicar filtro personalizado
+        function applyCustomDateFilter() {
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            if (!startDate || !endDate) {
+                alert('Por favor, selecione as datas inicial e final.');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('A data inicial não pode ser posterior à data final.');
+                return;
+            }
+
+            // Verificar se o período não é muito longo (máximo 365 dias)
+            const daysDiff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+            if (daysDiff > 365) {
+                alert('O período selecionado não pode ser superior a 365 dias.');
+                return;
+            }
+
+            // Salvar datas personalizadas
+            customStartDate = startDate;
+            customEndDate = endDate;
+            currentDateFilter = 'custom';
+
+            // Calcular métricas personalizadas
+            const customMetrics = calculateCustomMetrics(new Date(startDate), new Date(endDate));
+
+            // Atualizar interface
+            updateMetrics('custom', customMetrics);
+            updateAllCharts('custom', startDate, endDate);
+            showCustomPeriodIndicator(startDate, endDate);
+
+            // Ocultar o seletor de datas personalizadas
+            document.querySelector('.custom-date-range').style.display = 'none';
+
+            console.log(`Filtro personalizado aplicado: ${startDate} até ${endDate}`);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configurar filtros de data
+            document.querySelectorAll('.date-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.date-option').forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+
+                    const period = option.dataset.period;
+                    const customDateRange = document.querySelector('.custom-date-range');
+
+                    if (period === 'custom') {
+                        customDateRange.style.display = 'flex';
+                        hideCustomPeriodIndicator();
+                    } else {
+                        customDateRange.style.display = 'none';
+                        hideCustomPeriodIndicator();
+                        currentDateFilter = period;
+                        customStartDate = null;
+                        customEndDate = null;
+                        updateMetrics(period);
+                        updateAllCharts(period);
+                    }
+                });
+            });
+
+            // Aplicar filtro personalizado
+            document.querySelector('.apply-date-btn').addEventListener('click', applyCustomDateFilter);
+
+            // Aplicar filtro personalizado ao pressionar Enter nos inputs de data
+            document.getElementById('start-date').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    applyCustomDateFilter();
+                }
+            });
+
+            document.getElementById('end-date').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    applyCustomDateFilter();
+                }
+            });
+
+            // Configurar navegação por abas
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+                });
+            });
+
+            // Configurar busca para cada aba
+            setupSearch('products-search', 'products-table');
+            setupSearch('restaurants-search', 'restaurants-table');
+            setupSearch('delivery-search', 'delivery-table');
+
+            // Inicializar gráficos
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            const { labels } = generateChartData(currentDateFilter);
+
+            // Gráfico de produtos
+            const productsCtx = document.getElementById('productsChart').getContext('2d');
+            productsChart = new Chart(productsCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Combo Big Mac',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 150),
+                        borderColor: '#ea1d2c',
+                        backgroundColor: 'rgba(234, 29, 44, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Pizza de Calabresa G',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 120),
+                        borderColor: '#50b773',
+                        backgroundColor: 'rgba(80, 183, 115, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Açaí 500ml',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 100),
+                        borderColor: '#ffba00',
+                        backgroundColor: 'rgba(255, 186, 0, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                title: function (context) {
+                                    return new Date(context[0].parsed.x).toLocaleDateString('pt-BR');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'dd/MM/yyyy',
+                                displayFormats: {
+                                    day: 'dd/MM'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+
+            // Gráfico de restaurantes
+            const restaurantsCtx = document.getElementById('restaurantsChart').getContext('2d');
+            restaurantsChart = new Chart(restaurantsCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'McDonald\'s - Centro',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 250),
+                        backgroundColor: '#ea1d2c',
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }, {
+                        label: 'China in Box - Zona Sul',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 200),
+                        backgroundColor: '#50b773',
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }, {
+                        label: 'Habibs - Shopping Norte',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 100) + 180),
+                        backgroundColor: '#ffba00',
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                title: function (context) {
+                                    return new Date(context[0].parsed.x).toLocaleDateString('pt-BR');
+                                },
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString('pt-BR') + ' pedidos';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'dd/MM/yyyy',
+                                displayFormats: {
+                                    day: 'dd/MM'
+                                }
+                            },
+                            stacked: false,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de categorias (não muda com o período)
+            const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+            categoriesChart = new Chart(categoriesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fast Food', 'Pizza', 'Japonesa', 'Brasileira', 'Açaí', 'Árabe', 'Outros'],
+                    datasets: [{
+                        data: [30, 22, 15, 12, 10, 8, 3],
+                        backgroundColor: [
+                            '#ea1d2c',
+                            '#50b773',
+                            '#ffba00',
+                            '#5d68c9',
+                            '#e6730f',
+                            '#9c27b0',
+                            '#a6a6a6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Gráfico de tempo de entrega
+            const deliveryTimeCtx = document.getElementById('deliveryTimeChart').getContext('2d');
+            deliveryTimeChart = new Chart(deliveryTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Habibs - Shopping Norte',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 5) + 23),
+                        borderColor: '#50b773',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.4
+                    }, {
+                        label: 'Pizza Hut - Pinheiros',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 7) + 38),
+                        borderColor: '#ea1d2c',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.4
+                    }, {
+                        label: 'Sushi Delivery - Consolação',
+                        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 6) + 34),
+                        borderColor: '#ffba00',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function (context) {
+                                    return new Date(context[0].parsed.x).toLocaleDateString('pt-BR');
+                                },
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' min';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'dd/MM/yyyy',
+                                displayFormats: {
+                                    day: 'dd/MM'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            min: 15,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return value + ' min';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Função para definir datas padrão nos inputs
+        function setDefaultDates() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            document.getElementById('start-date').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+
+            // Definir data máxima como hoje
+            document.getElementById('start-date').max = today.toISOString().split('T')[0];
+            document.getElementById('end-date').max = today.toISOString().split('T')[0];
+        }
+
+        // Função adicional para atualizar dados das tabelas baseado no filtro de data
+        function updateTableData(period) {
+            console.log('Atualizando dados das tabelas para o período:', period);
+            // Aqui você pode implementar a lógica para atualizar os dados das tabelas
+            // baseado no período selecionado
+        }
+
+        // Adicionar funcionalidade aos botões de ação dos cards
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('card-action-btn') || e.target.parentElement.classList.contains('card-action-btn')) {
+                console.log('Botão de ação clicado');
+            }
+        });
+
+        // Função de refresh/reload para os dados
+        function refreshData() {
+            console.log('Atualizando dados...');
+            if (currentDateFilter === 'custom' && customStartDate && customEndDate) {
+                const customMetrics = calculateCustomMetrics(new Date(customStartDate), new Date(customEndDate));
+                updateMetrics('custom', customMetrics);
+                updateAllCharts('custom', customStartDate, customEndDate);
+            } else {
+                updateMetrics(currentDateFilter);
+                updateAllCharts(currentDateFilter);
+            }
+            updateTableData(currentDateFilter);
+        }
+
+        // Adicionar listener para teclas de atalho
+        document.addEventListener('keydown', function (e) {
+            // Ctrl + R para refresh
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshData();
+            }
+
+            // Teclas numéricas para trocar abas
+            if (e.key >= '1' && e.key <= '3') {
+                const tabIndex = parseInt(e.key) - 1;
+                const tabs = document.querySelectorAll('.tab');
+                if (tabs[tabIndex]) {
+                    tabs[tabIndex].click();
+                }
+            }
+        });
+
+        // Função para salvar preferências do usuário
+        function saveUserPreferences() {
+            const preferences = {
+                dateFilter: currentDateFilter,
+                customStartDate: customStartDate,
+                customEndDate: customEndDate,
+                activeTab: document.querySelector('.tab.active').dataset.tab
+            };
+            localStorage.setItem('ifood-analytics-preferences', JSON.stringify(preferences));
+        }
+
+        // Função para carregar preferências do usuário
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('ifood-analytics-preferences');
+            if (saved) {
+                const preferences = JSON.parse(saved);
+
+                // Restaurar filtro de data
+                if (preferences.dateFilter) {
+                    if (preferences.dateFilter === 'custom' && preferences.customStartDate && preferences.customEndDate) {
+                        customStartDate = preferences.customStartDate;
+                        customEndDate = preferences.customEndDate;
+                        currentDateFilter = 'custom';
+
+                        document.getElementById('start-date').value = customStartDate;
+                        document.getElementById('end-date').value = customEndDate;
+
+                        const customMetrics = calculateCustomMetrics(new Date(customStartDate), new Date(customEndDate));
+                        updateMetrics('custom', customMetrics);
+                        updateAllCharts('custom', customStartDate, customEndDate);
+                        showCustomPeriodIndicator(customStartDate, customEndDate);
+
+                        // Ativar opção personalizada
+                        const customOption = document.querySelector('[data-period="custom"]');
+                        document.querySelectorAll('.date-option').forEach(o => o.classList.remove('active'));
+                        customOption.classList.add('active');
+                    } else {
+                        const dateOption = document.querySelector(`[data-period="${preferences.dateFilter}"]`);
+                        if (dateOption) {
+                            dateOption.click();
+                        }
+                    }
+                }
+
+                // Restaurar aba ativa
+                if (preferences.activeTab) {
+                    const tab = document.querySelector(`[data-tab="${preferences.activeTab}"]`);
+                    if (tab) {
+                        tab.click();
+                    }
+                }
+            }
+        }
+
+        // Salvar preferências quando houver mudanças
+        document.addEventListener('change', saveUserPreferences);
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('date-option') || e.target.classList.contains('tab')) {
+                setTimeout(saveUserPreferences, 100);
+            }
+        });
+
+        // Carregar preferências ao inicializar
+        window.addEventListener('load', loadUserPreferences);
+
+        // Adicionar indicador de loading
+        function showLoading(element) {
+            const loading = document.createElement('div');
+            loading.className = 'loading-indicator';
+            loading.innerHTML = `
+               <div class="loading-spinner"></div>
+               <span>Carregando dados...</span>
+           `;
+            element.appendChild(loading);
+            return loading;
+        }
+
+        function hideLoading(loadingElement) {
+            if (loadingElement && loadingElement.parentNode) {
+                loadingElement.parentNode.removeChild(loadingElement);
+            }
+        }
+
+        // Simular carregamento de dados com loading
+        function simulateDataLoading(callback) {
+            const delay = Math.random() * 1000 + 500; // 500ms a 1.5s
+            setTimeout(callback, delay);
+        }
+
+        // Configurar datas padrão
+        setDefaultDates();
+
+        // Adicionar validação em tempo real para as datas
+        document.getElementById('start-date').addEventListener('change', function () {
+            const endDateInput = document.getElementById('end-date');
+            endDateInput.min = this.value;
+        });
+
+        document.getElementById('end-date').addEventListener('change', function () {
+            const startDateInput = document.getElementById('start-date');
+            startDateInput.max = this.value;
+        });
+
+        console.log('Dashboard Analytics iFood inicializado com sucesso!');
+    </script>
+</body>
+
+</html>
